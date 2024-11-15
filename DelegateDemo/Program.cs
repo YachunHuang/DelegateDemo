@@ -2,37 +2,73 @@
 
 namespace DelegateDemo
 {
-    // 定義委派，負責安排裝修工作，輸入描述工作的字串且無回傳值
+    // 定義委派，負責安排裝修工作
     public delegate void RenovationDelegate(string taskDescription);
 
-    // 定義工人的工作
-    public class RenovationTasks
+    // 定義委派，Callback
+    public delegate void TaskCompletedCallback(string result);
+
+    /// <summary>
+    ///  工人類別
+    /// </summary>
+    public static class RenovationTasks
     {
-        /// <summary>
-        /// 油漆工
-        /// </summary>
-        /// <param name="taskDescription"></param>
         public static void PaintWalls(string taskDescription)
         {
             Console.WriteLine("油漆工執行: " + taskDescription);
         }
 
-        /// <summary>
-        /// 木工
-        /// </summary>
-        /// <param name="taskDescription"></param>
         public static void BuildFurniture(string taskDescription)
         {
             Console.WriteLine("木工執行: " + taskDescription);
         }
 
-        /// <summary>
-        /// 水電工
-        /// </summary>
-        /// <param name="taskDescription"></param>
         public static void InstallElectricalWiring(string taskDescription)
         {
             Console.WriteLine("水電工執行: " + taskDescription);
+        }
+    }
+
+    /// <summary>
+    ///  業主類別
+    /// </summary>
+    public class Owner
+    {
+        public void RequestRenovation(Contractor contractor)
+        {
+            Console.WriteLine("業主: 我要裝修牆壁。");
+            contractor.ArrangeTask("粉刷牆壁，顏色：白色", TaskCompletedNotification);
+        }
+
+        public void TaskCompletedNotification(string result)
+        {
+            Console.WriteLine("業主: 收到通知 -> " + result);
+        }
+    }
+
+    /// <summary>
+    /// 承包商類別
+    /// </summary>
+    public class Contractor
+    {
+        public void ArrangeTask(string taskDescription, TaskCompletedCallback callback)
+        {
+            Console.WriteLine("承包商: 接收到業主需求，安排工人執行。");
+            Worker worker = new Worker();
+            worker.DoWork(taskDescription, callback);
+        }
+    }
+
+    /// <summary>
+    /// 工人類別
+    /// </summary>
+    public class Worker
+    {
+        public void DoWork(string taskDescription, TaskCompletedCallback callback)
+        {
+            Console.WriteLine("工人: 執行工作 -> " + taskDescription);
+            string result = $"完成 {taskDescription}";
+            callback(result);
         }
     }
 
@@ -40,20 +76,40 @@ namespace DelegateDemo
     {
         static void Main(string[] args)
         {
-            // 建立委派，並指派不同的工作
+            Console.WriteLine("=== 基本委派 ===");
+            BasicDelegateExample();
+
+            Console.WriteLine("\n=== Callback 機制 ===");
+            CallbackDelegateExample();
+
+            Console.ReadLine();
+        }
+
+        /// <summary>
+        /// 基本委派：將不同的裝修任務委派給對應工人
+        /// </summary>
+        public static void BasicDelegateExample()
+        {
             RenovationDelegate delegateTask;
 
-            // 將油漆工作委派給油漆工
-            delegateTask = new RenovationDelegate(RenovationTasks.PaintWalls);
+            delegateTask = RenovationTasks.PaintWalls;
             delegateTask("牆面粉刷，顏色：白色");
 
-            // 將家具製作工作委派給木工
-            delegateTask = new RenovationDelegate(RenovationTasks.BuildFurniture);
+            delegateTask = RenovationTasks.BuildFurniture;
             delegateTask("訂製客廳沙發和茶几");
 
-            // 將電線安裝工作委派給水電工
-            delegateTask = new RenovationDelegate(RenovationTasks.InstallElectricalWiring);
+            delegateTask = RenovationTasks.InstallElectricalWiring;
             delegateTask("安裝廚房和浴室的電線");
+        }
+
+        /// <summary>
+        /// Callback 機制：業主透過承包商委派裝修任務，並接收完成通知
+        /// </summary>
+        public static void CallbackDelegateExample()
+        {
+            Owner owner = new Owner();
+            Contractor contractor = new Contractor();
+            owner.RequestRenovation(contractor);
         }
     }
 }
