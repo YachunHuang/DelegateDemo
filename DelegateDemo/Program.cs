@@ -79,7 +79,11 @@ namespace DelegateDemo
             Console.WriteLine("=== 基本委派 ===");
             BasicDelegateExample();
 
-            Console.WriteLine("\n=== Callback 機制 ===");
+            // 換行有兩種方式
+            // Console.WriteLine();
+            // Console.WriteLine($"{Environment.NewLine}=== Callback 機制 ===")
+            Console.WriteLine();
+            Console.WriteLine("=== Callback 機制 ===");
             CallbackDelegateExample();
 
             Console.ReadLine();
